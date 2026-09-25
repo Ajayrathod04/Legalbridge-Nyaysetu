@@ -181,6 +181,10 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`⚖️ NyaySetu API Server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`⚖️ LegalBridge | न्यायसेतु API Server running on port ${PORT}`);
+  });
+}
+
+export default app;

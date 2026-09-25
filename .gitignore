@@ -26,3 +26,5 @@ temp/
 Thumbs.db
 .vscode/
 .idea/
+
+.vercel
