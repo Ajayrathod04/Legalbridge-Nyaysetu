@@ -14,6 +14,11 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 
+// Silence unused variable warnings for optional provider keys
+if (OPENAI_API_KEY || GROQ_API_KEY) {
+  // Provider keys available
+}
+
 /**
  * System prompt enforcing strict evidence-grounded behavior and prompt-injection defenses.
  */
@@ -140,7 +145,7 @@ function analyzeDocumentFallback(
       keywords: ['governing law', 'dispute resolution', 'arbitration', 'jurisdiction'],
       defaultTitle: 'Governing Law & Dispute Resolution',
       severity: 'low' as const,
-      personaImpact: (ctx: UserContext) => {
+      personaImpact: (_ctx: UserContext) => {
         return 'Establishes which court or legal jurisdiction resolves any disagreements between parties.';
       },
       questions: ['In which city or forum will legal disputes be heard?'],
