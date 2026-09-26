@@ -20,6 +20,23 @@ if (OPENAI_API_KEY || GROQ_API_KEY) {
 }
 
 /**
+ * In-memory analysis cache to prevent repeated regex and string calculations.
+ */
+const analysisCache = new Map<string, DocumentAnalysis>();
+const prepSheetCache = new Map<string, CounselPrepSheet>();
+
+function getCacheKey(text: string, fileName: string, userContext: UserContext): string {
+  let hash = 0;
+  const sample = text.substring(0, 500);
+  for (let i = 0; i < sample.length; i++) {
+    hash = ((hash << 5) - hash) + sample.charCodeAt(i);
+    hash |= 0;
+  }
+  return `${userContext}_${fileName}_${text.length}_${hash}`;
+}
+
+
+/**
  * System prompt enforcing strict evidence-grounded behavior and prompt-injection defenses.
  */
 const SYSTEM_PROMPT = `You are LegalBridge | न्यायसेतु, a legal document assistance system.
@@ -259,6 +276,11 @@ export async function analyzeDocumentWithAI(
   fileSize: number,
   userContext: UserContext
 ): Promise<DocumentAnalysis> {
+  const cacheKey = getCacheKey(text, fileName, userContext);
+  if (analysisCache.has(cacheKey)) {
+    return JSON.parse(JSON.stringify(analysisCache.get(cacheKey)!));
+  }
+
   const safeText = sanitizeDocumentTextForPrompt(text);
 
   // Check if live API key is available
@@ -282,7 +304,7 @@ export async function analyzeDocumentWithAI(
         const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (jsonText) {
           const parsed = JSON.parse(jsonText);
-          return {
+          const result: DocumentAnalysis = {
             id: `doc-${Date.now()}`,
             fileName,
             fileType,
@@ -300,6 +322,9 @@ export async function analyzeDocumentWithAI(
             rawText: text,
             lines
           };
+          if (analysisCache.size > 50) analysisCache.clear();
+          analysisCache.set(cacheKey, result);
+          return result;
         }
       }
     } catch (err) {
@@ -308,7 +333,10 @@ export async function analyzeDocumentWithAI(
   }
 
   // Deterministic Fallback Engine
-  return analyzeDocumentFallback(text, lines, fileName, fileType, fileSize, userContext);
+  const fallbackResult = analyzeDocumentFallback(text, lines, fileName, fileType, fileSize, userContext);
+  if (analysisCache.size > 50) analysisCache.clear();
+  analysisCache.set(cacheKey, fallbackResult);
+  return fallbackResult;
 }
 
 /**
@@ -459,6 +487,11 @@ export async function compareDocuments(
  * Generate Counsel Preparation Sheet
  */
 export function generateCounselPrepSheet(analysis: DocumentAnalysis): CounselPrepSheet {
+  const prepCacheKey = `${analysis.id}_${analysis.userContext}_${analysis.findings.length}`;
+  if (prepSheetCache.has(prepCacheKey)) {
+    return JSON.parse(JSON.stringify(prepSheetCache.get(prepCacheKey)!));
+  }
+
   const questions: string[] = [];
   const checklist: ChecklistItem[] = [];
   const attentionAreas: { title: string; risk: string; severity: 'high' | 'medium' | 'low' | 'neutral' }[] = [];
@@ -486,7 +519,7 @@ export function generateCounselPrepSheet(analysis: DocumentAnalysis): CounselPre
     }
   });
 
-  return {
+  const result: CounselPrepSheet = {
     documentTitle: analysis.fileName,
     userContext: analysis.userContext,
     generatedAt: new Date().toLocaleDateString(),
@@ -506,4 +539,8 @@ export function generateCounselPrepSheet(analysis: DocumentAnalysis): CounselPre
     ],
     actionChecklist: checklist
   };
+
+  if (prepSheetCache.size > 50) prepSheetCache.clear();
+  prepSheetCache.set(prepCacheKey, result);
+  return result;
 }

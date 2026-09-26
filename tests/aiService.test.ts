@@ -192,4 +192,91 @@ describe("NyaySetu AI Service & Comprehensive Evaluation Suite", () => {
     const targetLine = lines.find(l => l.lineNumber === f.startLine);
     expect(targetLine).toBeDefined();
   });
+
+  it("18. should return cached analysis instantaneously for identical text and persona context", async () => {
+    const t0 = Date.now();
+    const analysis1 = await analyzeDocumentWithAI(
+      sample.content,
+      lines,
+      "CacheTestDoc.txt",
+      "txt",
+      sample.content.length,
+      "freelancer"
+    );
+    const t1 = Date.now();
+
+    const analysis2 = await analyzeDocumentWithAI(
+      sample.content,
+      lines,
+      "CacheTestDoc.txt",
+      "txt",
+      sample.content.length,
+      "freelancer"
+    );
+    const t2 = Date.now();
+
+    expect(analysis2.title).toBe(analysis1.title);
+    expect(analysis2.findings.length).toBe(analysis1.findings.length);
+    // Cache hit should take <= 2ms
+    expect(t2 - t1).toBeLessThanOrEqual(20);
+  });
+
+  it("19. should report zero modified/removed risk changes when comparing identical documents", async () => {
+    const docA = await analyzeDocumentWithAI(
+      sample.content,
+      lines,
+      "IdenticalDoc_A.txt",
+      "txt",
+      sample.content.length,
+      "employee"
+    );
+
+    const comparison = await compareDocuments(docA, docA);
+    const modifiedOrRemoved = comparison.diffs.filter(d => d.changeType === 'modified' || d.changeType === 'removed');
+    expect(modifiedOrRemoved.length).toBe(0);
+  });
+
+  it("20. should return cached prep sheet structure for repeat calls", () => {
+    const mockAnalysis = {
+      id: "doc-cache-prep-test",
+      fileName: "TestAgreement.txt",
+      fileType: "txt" as const,
+      fileSize: 1000,
+      uploadTimestamp: new Date().toISOString(),
+      userContext: "tenant" as const,
+      title: "Test Lease Analysis",
+      summary: "Lease agreement analysis summary",
+      documentType: "Residential Lease Agreement",
+      parties: ["Landlord Inc", "John Tenant"],
+      totalSections: 2,
+      keyDates: [],
+      keyObligations: [],
+      findings: [
+        {
+          id: "clause-1",
+          category: "payment" as const,
+          title: "Rent & Deposit",
+          verbatimText: "Tenant shall pay monthly rent of $1500.",
+          sectionNumber: "Section 1",
+          startLine: 1,
+          endLine: 3,
+          simpleExplanation: "Rent explanation",
+          personaImpact: "Tenant rent obligation",
+          severity: "medium" as const,
+          relatedClauseIds: [],
+          questionsToClarify: ["What is rent due date?"],
+          suggestedAction: "Pay rent on time"
+        }
+      ],
+      rawText: "Sample lease text",
+      lines: [{ lineNumber: 1, content: "Sample lease text" }]
+    };
+
+    const prep1 = generateCounselPrepSheet(mockAnalysis);
+    const prep2 = generateCounselPrepSheet(mockAnalysis);
+
+    expect(prep1.documentTitle).toBe("TestAgreement.txt");
+    expect(prep2.actionChecklist.length).toBe(prep1.actionChecklist.length);
+    expect(prep2.actionChecklist[0].completed).toBe(false);
+  });
 });

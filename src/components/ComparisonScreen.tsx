@@ -120,21 +120,24 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
         </div>
 
         {/* Comparison Results Render */}
-        {comparisonResult && (
-          <div role="region" aria-label="Document Comparison Diff Results" aria-live="polite">
-            {/* Risk Changes Summary */}
-            <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderLeft: '4px solid var(--color-warning)' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--color-brand-900)', marginBottom: '0.5rem' }}>
-                Key Risk & Obligation Changes ({comparisonResult.diffs.filter(d => d.changeType !== 'unchanged').length} Changes Found)
-              </h3>
-              <ul style={{ paddingLeft: '1.2rem' }}>
-                {comparisonResult.keyRiskChanges.map((rc, idx) => (
-                  <li key={idx} style={{ fontSize: '0.9rem', color: 'var(--color-brand-800)', marginBottom: '0.25rem' }}>
-                    {rc}
-                  </li>
-                ))}
-              </ul>
-            </div>
+        {comparisonResult && (() => {
+          const nonUnchangedDiffs = comparisonResult.diffs.filter(d => d.changeType !== 'unchanged');
+          return (
+            <div role="region" aria-label="Document Comparison Diff Results" aria-live="polite">
+              {/* Risk Changes Summary */}
+              <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderLeft: '4px solid var(--color-warning)' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--color-brand-900)', marginBottom: '0.5rem' }}>
+                  Key Risk & Obligation Changes ({nonUnchangedDiffs.length} Changes Found)
+                </h3>
+                <ul style={{ paddingLeft: '1.2rem' }}>
+                  {comparisonResult.keyRiskChanges.map((rc, idx) => (
+                    <li key={idx} style={{ fontSize: '0.9rem', color: 'var(--color-brand-800)', marginBottom: '0.25rem' }}>
+                      {rc}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
 
             {/* Side by Side Diff List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -189,7 +192,8 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
               ))}
             </div>
           </div>
-        )}
+        );
+      })()}
 
       </div>
     </div>
