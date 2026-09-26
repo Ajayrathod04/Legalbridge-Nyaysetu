@@ -7,45 +7,45 @@
   /* Brand Palette - Deep Navy / Midnight + Royal Blue + Warm Gold */
   --color-brand-900: #0b132b; /* Midnight Navy */
   --color-brand-800: #1c2541; /* Slate Midnight */
-  --color-brand-700: #334155;
-  --color-brand-600: #475569;
-  --color-brand-500: #64748b;
+  --color-brand-700: #1e293b; /* Slate 800 - High Contrast 11.5:1 */
+  --color-brand-600: #334155; /* Slate 700 - High Contrast 9.5:1 */
+  --color-brand-500: #475569; /* Slate 600 - High Contrast 7.0:1 */
   
   /* Primary Accent & Gold Tokens */
-  --color-accent-blue: #2563eb;
-  --color-accent-blue-hover: #1d4ed8;
-  --color-accent-gold: #d97706;
+  --color-accent-blue: #1d4ed8; /* Blue 700 - Contrast 7.2:1 */
+  --color-accent-blue-hover: #1e40af; /* Blue 800 */
+  --color-accent-gold: #b45309; /* Amber 700 - Contrast 4.7:1 on white */
   --color-accent-gold-bg: #fffbeb;
-  --color-accent-gold-border: #fef3c7;
+  --color-accent-gold-border: #fde68a;
   
   /* Status Colors */
-  --color-danger: #dc2626;
+  --color-danger: #b91c1c; /* Red 700 - Contrast 5.6:1 */
   --color-danger-bg: #fef2f2;
-  --color-danger-border: #fecaca;
+  --color-danger-border: #fca5a5;
   
-  --color-warning: #d97706;
+  --color-warning: #92400e; /* Amber 800 - Contrast 5.9:1 */
   --color-warning-bg: #fffbeb;
-  --color-warning-border: #fef3c7;
+  --color-warning-border: #fde68a;
   
-  --color-success: #059669;
+  --color-success: #047857; /* Emerald 700 - Contrast 4.7:1 */
   --color-success-bg: #ecfdf5;
-  --color-success-border: #a7f3d0;
+  --color-success-border: #6ee7b7;
   
-  --color-info: #0284c7;
+  --color-info: #0369a1; /* Sky 700 - Contrast 4.6:1 */
   --color-info-bg: #f0f9ff;
-  --color-info-border: #bae6fd;
+  --color-info-border: #7dd3fc;
   
   /* Surface & Background */
   --color-bg-app: #f8fafc;
   --color-surface-card: #ffffff;
   --color-surface-hover: #f1f5f9;
-  --color-border-subtle: #e2e8f0;
-  --color-border-medium: #cbd5e1;
+  --color-border-subtle: #cbd5e1;
+  --color-border-medium: #94a3b8;
   
   /* Typography Colors */
   --color-text-main: #0b132b;
-  --color-text-muted: #64748b;
-  --color-text-subtle: #94a3b8;
+  --color-text-muted: #334155;
+  --color-text-subtle: #475569;
   --color-text-on-dark: #ffffff;
 
   /* Typography Stack */
@@ -180,10 +180,33 @@ button {
   background: none;
 }
 
-/* Accessibility Focus Outline */
+/* Accessibility Focus Outline & Screen Reader Utilities */
 :focus-visible {
-  outline: 2px solid var(--color-accent-blue);
-  outline-offset: 2px;
+  outline: 3px solid var(--color-accent-blue);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only-focusable:focus,
+.sr-only-focusable:focus-visible {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
 }
 
 /* Main Container Utilities */

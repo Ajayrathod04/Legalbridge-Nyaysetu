@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Search, UserCheck, ShieldCheck, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { FileText, Search, UserCheck, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 export const HeroDocumentFlow: React.FC = () => {
   return (

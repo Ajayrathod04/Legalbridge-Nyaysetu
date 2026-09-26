@@ -1,19 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { 
   FileText, 
   Search, 
   AlertTriangle, 
-  CheckCircle, 
-  Link as LinkIcon, 
   HelpCircle, 
   Calendar, 
   UserCheck, 
-  ChevronRight, 
   ArrowUpRight,
-  Sparkles,
-  BookmarkPlus
+  Sparkles
 } from 'lucide-react';
-import { DocumentAnalysis, ClauseFinding, ClauseCategory, SupportedLanguage } from '../../shared/types';
+import { DocumentAnalysis, ClauseFinding, SupportedLanguage } from '../../shared/types';
 import { getTranslation, getLocalizedPersonaImpact } from '../services/i18n';
 
 interface WorkspaceScreenProps {
@@ -40,12 +36,12 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
 
   const docViewerRef = useRef<HTMLDivElement>(null);
 
-  // Filter findings by selected category
-  const filteredFindings = selectedCategory === 'all' 
-    ? analysis.findings 
-    : analysis.findings.filter(f => f.category === selectedCategory);
-
-  const activeFinding = analysis.findings.find(f => f.id === activeFindingId) || analysis.findings[0];
+  // Memoized filter findings by selected category to prevent redundant computations
+  const filteredFindings = useMemo(() => {
+    return selectedCategory === 'all' 
+      ? analysis.findings 
+      : analysis.findings.filter(f => f.category === selectedCategory);
+  }, [selectedCategory, analysis.findings]);
 
   // Function to handle clicking "View Evidence"
   const handleViewEvidence = (finding: ClauseFinding) => {
@@ -62,7 +58,7 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
   };
 
   return (
-    <div style={{ padding: '1.5rem 0', background: 'var(--color-bg-app)', minHeight: 'calc(100vh - 120px)' }}>
+    <div id="main-content" tabIndex={-1} style={{ padding: '1.5rem 0', background: 'var(--color-bg-app)', minHeight: 'calc(100vh - 120px)' }}>
       <div className="container" style={{ maxWidth: '1440px' }}>
         
         {/* Workspace Top Action Bar */}
@@ -75,19 +71,19 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
               </span>
               <span style={{ fontSize: '0.825rem', color: 'var(--color-brand-500)' }}>• {analysis.fileName}</span>
             </div>
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--color-brand-900)' }}>
+            <h1 style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--color-brand-900)' }}>
               {analysis.title}
-            </h2>
+            </h1>
           </div>
 
           <div style={{ display: 'flex', gap: '0.65rem' }}>
-            <button onClick={() => onAskQuestion()} className="btn btn-secondary btn-sm">
-              <Search size={15} /> Ask Q&A
+            <button type="button" onClick={() => onAskQuestion()} className="btn btn-secondary btn-sm" aria-label="Ask questions about this document">
+              <Search size={15} aria-hidden="true" /> Ask Q&A
             </button>
-            <button onClick={onCompare} className="btn btn-secondary btn-sm">
+            <button type="button" onClick={onCompare} className="btn btn-secondary btn-sm" aria-label="Compare document versions">
               Compare Doc
             </button>
-            <button onClick={onPrepareCounsel} className="btn btn-accent btn-sm">
+            <button type="button" onClick={onPrepareCounsel} className="btn btn-accent btn-sm" aria-label="Generate counsel preparation sheet">
               Counsel Prep Sheet →
             </button>
           </div>
@@ -102,7 +98,7 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
         }}>
           <div className="card" style={{ padding: '1.15rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-brand-700)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.4rem' }}>
-              <Sparkles size={16} color="var(--color-accent-blue)" /> Document Overview
+              <Sparkles size={16} color="var(--color-accent-blue)" aria-hidden="true" /> Document Overview
             </div>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-brand-700)', lineHeight: 1.5 }}>
               {analysis.summary}
@@ -111,7 +107,7 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
 
           <div className="card" style={{ padding: '1.15rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-brand-700)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.4rem' }}>
-              <Calendar size={16} color="var(--color-accent-gold)" /> Key Dates & Duration
+              <Calendar size={16} color="var(--color-accent-gold)" aria-hidden="true" /> Key Dates & Duration
             </div>
             {analysis.keyDates.length > 0 ? (
               <ul style={{ listStyle: 'none', padding: 0 }}>
@@ -128,7 +124,7 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
 
           <div className="card" style={{ padding: '1.15rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-brand-700)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.4rem' }}>
-              <UserCheck size={16} color="var(--color-success)" /> Contract Parties
+              <UserCheck size={16} color="var(--color-success)" aria-hidden="true" /> Contract Parties
             </div>
             <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
               {analysis.parties.map((p, idx) => (
@@ -149,12 +145,16 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
         }}>
           {/* COLUMN 1: CLAUSE & CATEGORY NAVIGATOR */}
           <div className="card" style={{ padding: '1rem', position: 'sticky', top: '1.5rem', maxHeight: '780px', overflowY: 'auto' }}>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-brand-900)', marginBottom: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <h2 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-brand-900)', marginBottom: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Clause Map
-            </h3>
+            </h2>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+            <div role="tablist" aria-label="Clause Navigation List" style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
               <button
+                type="button"
+                role="tab"
+                aria-selected={selectedCategory === 'all'}
+                aria-controls="document-viewer-panel"
                 onClick={() => setSelectedCategory('all')}
                 style={{
                   textAlign: 'left',
@@ -165,7 +165,7 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
                   background: selectedCategory === 'all' ? 'var(--color-brand-900)' : 'transparent',
                   color: selectedCategory === 'all' ? '#ffffff' : 'var(--color-brand-700)',
                   display: 'flex',
-                  justify: 'space-between',
+                  justifyContent: 'space-between',
                   alignItems: 'center'
                 }}
               >
@@ -177,7 +177,12 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
                 const isActive = activeFindingId === f.id;
                 return (
                   <button
+                    type="button"
                     key={f.id}
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls="document-viewer-panel"
+                    aria-label={`View evidence for ${f.title}`}
                     onClick={() => handleViewEvidence(f)}
                     style={{
                       textAlign: 'left',
@@ -190,13 +195,13 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
                       borderLeft: isActive ? '3px solid var(--color-accent-blue)' : '3px solid transparent',
                       display: 'flex',
                       alignItems: 'center',
-                      justify: 'space-between'
+                      justifyContent: 'space-between'
                     }}
                   >
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {f.title}
                     </span>
-                    {f.severity === 'high' && <span style={{ color: 'var(--color-danger)', fontSize: '0.65rem' }}>●</span>}
+                    {f.severity === 'high' && <span style={{ color: 'var(--color-danger)', fontSize: '0.65rem' }} aria-label="High severity risk">●</span>}
                   </button>
                 );
               })}
@@ -204,16 +209,20 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
           </div>
 
           {/* COLUMN 2: VERBATIM DOCUMENT VIEWER WITH HIGHLIGHTING */}
-          <div className="card" style={{ padding: '1.25rem', height: '780px', display: 'flex', flexDirection: 'column' }}>
+          <div id="document-viewer-panel" role="tabpanel" aria-label="Verbatim Document Text Viewer" className="card" style={{ padding: '1.25rem', height: '780px', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--color-border-subtle)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <FileText size={18} color="var(--color-brand-700)" />
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-brand-900)' }}>
+                <FileText size={18} color="var(--color-brand-700)" aria-hidden="true" />
+                <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-brand-900)' }}>
                   Verbatim Document Text
-                </h3>
+                </h2>
               </div>
               <div style={{ position: 'relative', width: '200px' }}>
+                <label htmlFor="doc-search-input" className="sr-only">
+                  Search document text
+                </label>
                 <input
+                  id="doc-search-input"
                   type="text"
                   placeholder="Search document..."
                   value={docSearchQuery}
@@ -225,8 +234,9 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
                     borderRadius: 'var(--radius-sm)',
                     border: '1px solid var(--color-border-medium)'
                   }}
+                  aria-label="Search verbatim document text"
                 />
-                <Search size={14} style={{ position: 'absolute', left: '0.6rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-brand-500)' }} />
+                <Search size={14} style={{ position: 'absolute', left: '0.6rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-brand-500)' }} aria-hidden="true" />
               </div>
             </div>
 

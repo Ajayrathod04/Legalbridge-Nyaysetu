@@ -65,30 +65,36 @@ export const PersonaSelector: React.FC<PersonaSelectorProps> = ({
         <div className="card" style={{ padding: '2.5rem' }}>
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <div className="badge badge-low" style={{ marginBottom: '0.85rem' }}>
-              <UserCheck size={14} /> Differentiator Feature
+              <UserCheck size={14} aria-hidden="true" /> Differentiator Feature
             </div>
-            <h2 style={{ fontSize: '1.85rem', fontWeight: 700, color: 'var(--color-brand-900)', marginBottom: '0.5rem' }}>
+            <h1 id="persona-heading" style={{ fontSize: '1.85rem', fontWeight: 700, color: 'var(--color-brand-900)', marginBottom: '0.5rem' }}>
               Who are you in this document?
-            </h2>
+            </h1>
             <p style={{ color: 'var(--color-brand-600)', fontSize: '0.95rem', maxWidth: '600px', margin: '0 auto' }}>
               Your role helps LegalBridge | न्यायसेतु highlight risks and practical questions that matter specifically to YOU. It does not alter the document's actual wording.
             </p>
           </div>
 
-          {/* Grid of Role Cards */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
-            gap: '1rem',
-            marginBottom: '2rem'
-          }}>
+          {/* Grid of Role Cards using Native Radio Inputs */}
+          <div
+            role="radiogroup"
+            aria-labelledby="persona-heading"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
+              gap: '1rem',
+              marginBottom: '2rem'
+            }}
+          >
             {PERSONA_OPTIONS.map((opt) => {
               const isSelected = selectedContext === opt.id;
               return (
-                <div
+                <label
                   key={opt.id}
-                  onClick={() => onSelectContext(opt.id)}
+                  htmlFor={`persona-radio-${opt.id}`}
                   style={{
+                    display: 'block',
+                    textAlign: 'left',
                     border: `2px solid ${isSelected ? 'var(--color-accent-blue)' : 'var(--color-border-subtle)'}`,
                     background: isSelected ? 'var(--color-info-bg)' : '#ffffff',
                     borderRadius: 'var(--radius-md)',
@@ -98,31 +104,51 @@ export const PersonaSelector: React.FC<PersonaSelectorProps> = ({
                     boxShadow: isSelected ? 'var(--shadow-md)' : 'none'
                   }}
                 >
-                  <div style={{ marginBottom: '0.75rem' }}>{opt.icon}</div>
-                  <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-brand-900)', marginBottom: '0.35rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                    <div aria-hidden="true">{opt.icon}</div>
+                    <input
+                      id={`persona-radio-${opt.id}`}
+                      type="radio"
+                      name="persona-selection"
+                      value={opt.id}
+                      checked={isSelected}
+                      onChange={() => onSelectContext(opt.id)}
+                      aria-label={`${opt.title}: ${opt.description}`}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--color-accent-blue)' }}
+                    />
+                  </div>
+                  <h2 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-brand-900)', marginBottom: '0.35rem' }}>
                     {opt.title}
-                  </h4>
+                  </h2>
                   <p style={{ fontSize: '0.825rem', color: 'var(--color-brand-600)', lineHeight: 1.4 }}>
                     {opt.description}
                   </p>
-                </div>
+                </label>
               );
             })}
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <button 
+              type="button"
               onClick={() => {
                 onSelectContext('none');
                 onConfirm();
               }}
               className="btn btn-ghost"
+              aria-label="Skip role selection for now"
             >
               Skip for now
             </button>
 
-            <button onClick={onConfirm} className="btn btn-primary" style={{ padding: '0.75rem 2rem' }}>
-              Analyze for My Role <ArrowRight size={18} />
+            <button
+              type="button"
+              onClick={onConfirm}
+              className="btn btn-primary"
+              style={{ padding: '0.75rem 2rem' }}
+              aria-label="Confirm selected persona and analyze document"
+            >
+              Analyze for My Role <ArrowRight size={18} aria-hidden="true" />
             </button>
           </div>
         </div>

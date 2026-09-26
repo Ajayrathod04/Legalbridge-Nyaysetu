@@ -237,6 +237,18 @@ function analyzeDocumentFallback(
 }
 
 /**
+ * Neutralizes potential prompt injection delimiter escape attacks.
+ */
+export function sanitizeDocumentTextForPrompt(raw: string): string {
+  if (!raw) return '';
+  return raw
+    .replace(/<document_content>/gi, '[document_content]')
+    .replace(/<\/document_content>/gi, '[/document_content]')
+    .replace(/<system_prompt>/gi, '[system_prompt]')
+    .replace(/<\/system_prompt>/gi, '[/system_prompt]');
+}
+
+/**
  * Call Live LLM Service (Gemini / OpenAI / Groq) if key exists
  */
 export async function analyzeDocumentWithAI(
@@ -247,6 +259,8 @@ export async function analyzeDocumentWithAI(
   fileSize: number,
   userContext: UserContext
 ): Promise<DocumentAnalysis> {
+  const safeText = sanitizeDocumentTextForPrompt(text);
+
   // Check if live API key is available
   if (GEMINI_API_KEY) {
     try {
@@ -257,7 +271,7 @@ export async function analyzeDocumentWithAI(
           contents: [{
             parts: [
               { text: SYSTEM_PROMPT },
-              { text: `User Persona Context: ${userContext}\nDocument Content:\n<document_content>\n${text.substring(0, 15000)}\n</document_content>\nAnalyze this document and return structured JSON.` }
+              { text: `User Persona Context: ${userContext}\nDocument Content:\n<document_content>\n${safeText.substring(0, 15000)}\n</document_content>\nAnalyze this document and return structured JSON.` }
             ]
           }],
           generationConfig: { responseMimeType: 'application/json' }

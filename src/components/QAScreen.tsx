@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, HelpCircle, ShieldCheck, AlertCircle, FileText, Sparkles, Loader2 } from 'lucide-react';
+import { Send, ShieldCheck, AlertCircle, Sparkles, Loader2 } from 'lucide-react';
 import { DocumentAnalysis, QAItem } from '../../shared/types';
 
 interface QAScreenProps {
@@ -58,9 +58,9 @@ export const QAScreen: React.FC<QAScreenProps> = ({ analysis, initialQuestion = 
           <div className="badge badge-low" style={{ marginBottom: '0.75rem' }}>
             <ShieldCheck size={14} /> 100% Evidence Grounded Q&A
           </div>
-          <h2 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--color-brand-900)' }}>
+          <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--color-brand-900)' }}>
             Ask LegalBridge | न्यायसेतु About Your Document
-          </h2>
+          </h1>
           <p style={{ color: 'var(--color-brand-600)', fontSize: '0.95rem' }}>
             Ask anything about <strong style={{ color: 'var(--color-brand-900)' }}>{analysis.fileName}</strong>. Every answer is strictly grounded with verbatim evidence quotes and line citations.
           </p>
@@ -69,7 +69,11 @@ export const QAScreen: React.FC<QAScreenProps> = ({ analysis, initialQuestion = 
         {/* Input Bar */}
         <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+            <label htmlFor="qa-input-field" className="sr-only">
+              Ask a question about your legal document
+            </label>
             <input
+              id="qa-input-field"
               type="text"
               placeholder="e.g. What notice period is required if I want to resign?"
               value={question}
@@ -82,25 +86,29 @@ export const QAScreen: React.FC<QAScreenProps> = ({ analysis, initialQuestion = 
                 borderRadius: 'var(--radius-md)',
                 border: '1px solid var(--color-border-medium)'
               }}
+              aria-label="Ask a question about your legal document"
             />
             <button
+              type="button"
               onClick={() => handleAsk()}
               disabled={isLoading || !question.trim()}
               className="btn btn-accent"
               style={{ padding: '0.75rem 1.5rem' }}
+              aria-label="Submit question to LegalBridge"
             >
-              {isLoading ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <><Send size={16} /> Ask</>}
+              {isLoading ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} aria-hidden="true" /> : <><Send size={16} aria-hidden="true" /> Ask</>}
             </button>
           </div>
 
           {/* Quick Prompts */}
           <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-brand-500)', textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-brand-500)', textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>
               Suggested Questions:
-            </label>
+            </span>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               {PREDEFINED_PROMPTS.map((prompt, idx) => (
                 <button
+                  type="button"
                   key={idx}
                   onClick={() => {
                     setQuestion(prompt);
@@ -108,8 +116,9 @@ export const QAScreen: React.FC<QAScreenProps> = ({ analysis, initialQuestion = 
                   }}
                   className="btn btn-secondary btn-sm"
                   style={{ fontSize: '0.775rem', background: 'var(--color-bg-app)' }}
+                  aria-label={`Ask suggested question: ${prompt}`}
                 >
-                  <Sparkles size={13} color="var(--color-accent-blue)" /> {prompt}
+                  <Sparkles size={13} color="var(--color-accent-blue)" aria-hidden="true" /> {prompt}
                 </button>
               ))}
             </div>
@@ -118,19 +127,19 @@ export const QAScreen: React.FC<QAScreenProps> = ({ analysis, initialQuestion = 
 
         {/* Error Alert */}
         {error && (
-          <div style={{ background: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: '1px solid var(--color-danger-border)', padding: '0.85rem 1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>
+          <div role="alert" aria-live="assertive" style={{ background: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: '1px solid var(--color-danger-border)', padding: '0.85rem 1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>
             {error}
           </div>
         )}
 
         {/* Q&A Response History */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div role="region" aria-label="Question and Answer History" aria-live="polite" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {history.map((item) => (
             <div key={item.id} className="card" style={{ padding: '1.5rem', borderLeft: item.isSufficient ? '4px solid var(--color-success)' : '4px solid var(--color-warning)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-brand-900)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-brand-900)' }}>
                   Q: {item.question}
-                </h4>
+                </h3>
                 <span className={`badge badge-${item.confidence === 'high' ? 'low' : 'medium'}`}>
                   Confidence: {item.confidence.toUpperCase()}
                 </span>
@@ -156,7 +165,7 @@ export const QAScreen: React.FC<QAScreenProps> = ({ analysis, initialQuestion = 
                 </div>
               ) : (
                 <div style={{ background: 'var(--color-warning-bg)', color: '#92400e', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', fontSize: '0.875rem' }}>
-                  <AlertCircle size={15} style={{ verticalAlign: 'middle', marginRight: '0.35rem' }} />
+                  <AlertCircle size={15} style={{ verticalAlign: 'middle', marginRight: '0.35rem' }} aria-hidden="true" />
                   LegalBridge | न्यायसेतु adheres to strict evidence grounding. No facts or clauses were fabricated.
                 </div>
               )}

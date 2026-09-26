@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, FileCheck, Search, Users, ArrowRight, Sparkles, FileText, CheckCircle2, ChevronRight, Eye, Layers } from 'lucide-react';
+import { ArrowRight, FileText } from 'lucide-react';
 import { SAMPLE_DOCUMENTS, SampleDocument } from '../../shared/sampleDocs';
 import { LegalBridgeLogo } from './brand/LegalBridgeLogo';
 import { HeroDocumentFlow } from './brand/HeroDocumentFlow';
@@ -63,16 +63,19 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
           {/* CTAs */}
           <div style={{ display: 'flex', gap: '1.25rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button 
+              type="button"
               onClick={onStartUpload} 
               className="btn btn-primary" 
               style={{ padding: '0.95rem 2.5rem', fontSize: '1.1rem', borderRadius: 'var(--radius-md)' }}
+              aria-label="Analyze a legal document"
             >
-              Analyze a Document <ArrowRight size={20} />
+              Analyze a Document <ArrowRight size={20} aria-hidden="true" />
             </button>
             <a 
               href="#journey" 
               className="btn btn-secondary" 
               style={{ padding: '0.95rem 2rem', fontSize: '1.1rem', borderRadius: 'var(--radius-md)' }}
+              aria-label="See how LegalBridge works"
             >
               See How It Works
             </a>
@@ -83,12 +86,12 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
         </div>
 
         {/* EDITORIAL SCROLL-DRIVEN NARRATIVE JOURNEY (01 to 05) */}
-        <div id="journey" style={{ marginBottom: '5rem', paddingTop: '2rem' }}>
+        <section id="journey" aria-labelledby="journey-heading" style={{ marginBottom: '5rem', paddingTop: '2rem' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
             <span className="badge badge-low" style={{ marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
               EDITORIAL PRODUCT JOURNEY
             </span>
-            <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-brand-900)', letterSpacing: '-0.02em' }}>
+            <h2 id="journey-heading" style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-brand-900)', letterSpacing: '-0.02em' }}>
               How LegalBridge Works For You
             </h2>
             <p style={{ color: 'var(--color-brand-600)', fontSize: '1.05rem', maxWidth: '600px', margin: '0.5rem auto 0 auto' }}>
@@ -100,7 +103,7 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
             
             {/* Step 01 — UPLOAD */}
             <div className="card" style={{ padding: '2.25rem', display: 'grid', gridTemplateColumns: '80px 1fr', gap: '1.5rem', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent-blue)', opacity: 0.8, lineHeight: 1 }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent-blue)', opacity: 0.8, lineHeight: 1 }} aria-hidden="true">
                 01
               </span>
               <div>
@@ -115,7 +118,7 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
 
             {/* Step 02 — UNDERSTAND */}
             <div className="card" style={{ padding: '2.25rem', display: 'grid', gridTemplateColumns: '80px 1fr', gap: '1.5rem', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent-gold)', opacity: 0.8, lineHeight: 1 }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent-gold)', opacity: 0.8, lineHeight: 1 }} aria-hidden="true">
                 02
               </span>
               <div>
@@ -130,7 +133,7 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
 
             {/* Step 03 — SEE WHAT MATTERS */}
             <div className="card" style={{ padding: '2.25rem', display: 'grid', gridTemplateColumns: '80px 1fr', gap: '1.5rem', alignItems: 'flex-start', borderLeft: '4px solid var(--color-warning)' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-warning)', opacity: 0.9, lineHeight: 1 }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-warning)', opacity: 0.9, lineHeight: 1 }} aria-hidden="true">
                 03
               </span>
               <div>
@@ -145,7 +148,7 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
 
             {/* Step 04 — VERIFY */}
             <div className="card" style={{ padding: '2.25rem', display: 'grid', gridTemplateColumns: '80px 1fr', gap: '1.5rem', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-success)', opacity: 0.8, lineHeight: 1 }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-success)', opacity: 0.8, lineHeight: 1 }} aria-hidden="true">
                 04
               </span>
               <div>
@@ -160,7 +163,7 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
 
             {/* Step 05 — PREPARE */}
             <div className="card" style={{ padding: '2.25rem', display: 'grid', gridTemplateColumns: '80px 1fr', gap: '1.5rem', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-info)', opacity: 0.8, lineHeight: 1 }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-info)', opacity: 0.8, lineHeight: 1 }} aria-hidden="true">
                 05
               </span>
               <div>
@@ -174,13 +177,13 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
             </div>
 
           </div>
-        </div>
+        </section>
 
         {/* 1-CLICK SAMPLE DEMO DOCUMENTS SECTION */}
-        <div id="samples" style={{ background: '#ffffff', borderRadius: 'var(--radius-lg)', padding: '3rem 2.5rem', border: '1px solid var(--color-border-subtle)', boxShadow: 'var(--shadow-sm)' }}>
+        <section id="samples" aria-labelledby="samples-heading" style={{ background: '#ffffff', borderRadius: 'var(--radius-lg)', padding: '3rem 2.5rem', border: '1px solid var(--color-border-subtle)', boxShadow: 'var(--shadow-sm)' }}>
           <div style={{ textAlign: 'center', marginBottom: '2.25rem' }}>
             <span className="badge badge-low" style={{ marginBottom: '0.5rem' }}>INSTANT DEMO</span>
-            <h2 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--color-brand-900)' }}>
+            <h2 id="samples-heading" style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--color-brand-900)' }}>
               Try 1-Click Sample Legal Documents
             </h2>
             <p style={{ color: 'var(--color-brand-600)', fontSize: '1rem' }}>
@@ -198,34 +201,36 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
                   padding: '1.5rem',
                   display: 'flex',
                   flexDirection: 'column',
-                  justify: 'space-between',
+                  justifyContent: 'space-between',
                   background: 'var(--color-bg-app)'
                 }}
               >
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                     <span className="badge badge-low">{sample.category}</span>
-                    <FileText size={18} color="var(--color-brand-500)" />
+                    <FileText size={18} color="var(--color-brand-500)" aria-hidden="true" />
                   </div>
-                  <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-brand-900)' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-brand-900)' }}>
                     {sample.title}
-                  </h4>
+                  </h3>
                   <p style={{ fontSize: '0.875rem', color: 'var(--color-brand-600)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
                     {sample.description}
                   </p>
                 </div>
 
                 <button 
+                  type="button"
                   onClick={() => onSelectSample(sample)}
                   className="btn btn-secondary btn-sm"
                   style={{ width: '100%', padding: '0.6rem' }}
+                  aria-label={`Analyze sample document ${sample.title}`}
                 >
                   Analyze This Document →
                 </button>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GitCompare, Plus, Minus, RefreshCw, AlertTriangle, ArrowRight, Loader2, FileText } from 'lucide-react';
+import { GitCompare, RefreshCw, Loader2 } from 'lucide-react';
 import { DocumentAnalysis, ComparisonResult } from '../../shared/types';
 import { SAMPLE_DOCUMENTS } from '../../shared/sampleDocs';
 
@@ -78,9 +78,9 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
           <div className="badge badge-low" style={{ marginBottom: '0.75rem' }}>
             <GitCompare size={14} /> Side-By-Side Contract Diff Engine
           </div>
-          <h2 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--color-brand-900)' }}>
+          <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--color-brand-900)' }}>
             Document Version Comparison
-          </h2>
+          </h1>
           <p style={{ color: 'var(--color-brand-600)', fontSize: '0.95rem' }}>
             Compare <strong style={{ color: 'var(--color-brand-900)' }}>{currentAnalysis.fileName}</strong> against an updated or revised draft to instantly detect added, removed, or modified terms.
           </p>
@@ -88,14 +88,19 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
 
         {/* Comparison Control Card */}
         <div className="card" style={{ padding: '1.5rem', marginBottom: '2rem', textAlign: 'center' }}>
-          <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>
             Select Second Document (Document B) to Compare:
-          </h4>
+          </h3>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+            <label htmlFor="comparison-doc-select" className="sr-only">
+              Select second document version to compare
+            </label>
             <select
+              id="comparison-doc-select"
               value={selectedSampleV2}
               onChange={(e) => setSelectedSampleV2(e.target.value)}
               style={{ padding: '0.6rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border-medium)', fontSize: '0.9rem' }}
+              aria-label="Select second document version to compare"
             >
               {SAMPLE_DOCUMENTS.map(s => (
                 <option key={s.id} value={s.id}>{s.title} (Amended Version 2)</option>
@@ -103,18 +108,20 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
             </select>
 
             <button
+              type="button"
               onClick={handleCompareWithV2Sample}
               disabled={isLoading}
               className="btn btn-primary"
+              aria-label="Run side-by-side clause comparison"
             >
-              {isLoading ? <Loader2 size={16} className="spin-animation" /> : <><RefreshCw size={16} /> Run Clause Comparison</>}
+              {isLoading ? <Loader2 size={16} className="spin-animation" aria-hidden="true" /> : <><RefreshCw size={16} aria-hidden="true" /> Run Clause Comparison</>}
             </button>
           </div>
         </div>
 
         {/* Comparison Results Render */}
         {comparisonResult && (
-          <div>
+          <div role="region" aria-label="Document Comparison Diff Results" aria-live="polite">
             {/* Risk Changes Summary */}
             <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderLeft: '4px solid var(--color-warning)' }}>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--color-brand-900)', marginBottom: '0.5rem' }}>

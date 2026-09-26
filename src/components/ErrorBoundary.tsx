@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import { LegalBridgeLogo } from './brand/LegalBridgeLogo';
 import { RefreshCw, Home, AlertCircle } from 'lucide-react';
 

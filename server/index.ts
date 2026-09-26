@@ -22,10 +22,47 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Rate limiting in-memory store
+const ipRequestStore = new Map<string, { count: number; resetTime: number }>();
+function rateLimiter(req: Request, res: Response, next: NextFunction) {
+  const clientIp = req.ip || req.socket.remoteAddress || '127.0.0.1';
+  const now = Date.now();
+  const windowMs = 60 * 1000;
+  const record = ipRequestStore.get(clientIp);
+
+  if (!record || now > record.resetTime) {
+    ipRequestStore.set(clientIp, { count: 1, resetTime: now + windowMs });
+    return next();
+  }
+
+  if (record.count >= 120) {
+    return res.status(429).json({ error: 'Too many requests. Please try again in a minute.' });
+  }
+
+  record.count += 1;
+  next();
+}
+
 // Security & Middleware
+app.use(rateLimiter);
+app.use((_req: Request, res: Response, next: NextFunction) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
+
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Helper to sanitize filenames against path traversal or script injection
+function sanitizeFilename(originalName: string): string {
+  if (!originalName) return 'document.txt';
+  const basename = path.basename(originalName).replace(/[^\w\.\-\s]/gi, '_');
+  return basename.substring(0, 100) || 'document.txt';
+}
 
 // In-Memory Document Cache (Privacy focused: No persistent disk storage of sensitive docs)
 const documentStore = new Map<string, DocumentAnalysis>();
@@ -79,11 +116,12 @@ app.post('/api/documents/upload', upload.single('file'), async (req: Request, re
       return res.status(400).json({ error: 'No document file was provided.' });
     }
 
-    const extracted = await extractDocumentContent(req.file.buffer, req.file.originalname);
+    const safeName = sanitizeFilename(req.file.originalname);
+    const extracted = await extractDocumentContent(req.file.buffer, safeName);
     res.json({
       text: extracted.text,
       lines: extracted.lines,
-      fileName: req.file.originalname,
+      fileName: safeName,
       fileType: extracted.fileType,
       fileSize: req.file.size
     });

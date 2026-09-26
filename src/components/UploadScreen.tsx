@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { UploadCloud, FileText, CheckCircle2, AlertCircle, ArrowLeft, Loader2 } from 'lucide-react';
-import { UserContext } from '../../shared/types';
 
 interface UploadScreenProps {
   onBack: () => void;
@@ -47,44 +46,61 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      fileInputRef.current?.click();
+    }
+  };
+
   return (
     <div style={{ padding: '3rem 0' }}>
       <div className="container" style={{ maxWidth: '720px' }}>
-        <button onClick={onBack} className="btn btn-ghost btn-sm" style={{ marginBottom: '1.5rem' }}>
-          <ArrowLeft size={16} /> Back
+        <button
+          type="button"
+          onClick={onBack}
+          className="btn btn-ghost btn-sm"
+          style={{ marginBottom: '1.5rem' }}
+          aria-label="Go back to landing page"
+        >
+          <ArrowLeft size={16} aria-hidden="true" /> Back
         </button>
 
         <div className="card" style={{ padding: '2.5rem', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-brand-900)', marginBottom: '0.5rem' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-brand-900)', marginBottom: '0.5rem' }}>
             Upload Legal Document
-          </h2>
+          </h1>
           <p style={{ color: 'var(--color-brand-600)', fontSize: '0.95rem', marginBottom: '2rem' }}>
             Supports PDF, DOCX, and TXT files up to 10 MB.
           </p>
 
           {/* Error Banner */}
           {error && (
-            <div style={{
-              background: 'var(--color-danger-bg)',
-              border: '1px solid var(--color-danger-border)',
-              color: 'var(--color-danger)',
-              padding: '0.85rem 1rem',
-              borderRadius: 'var(--radius-md)',
-              marginBottom: '1.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.65rem',
-              textAlign: 'left',
-              fontSize: '0.9rem'
-            }}>
-              <AlertCircle size={18} />
+            <div
+              role="alert"
+              aria-live="assertive"
+              style={{
+                background: 'var(--color-danger-bg)',
+                border: '1px solid var(--color-danger-border)',
+                color: 'var(--color-danger)',
+                padding: '0.85rem 1rem',
+                borderRadius: 'var(--radius-md)',
+                marginBottom: '1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.65rem',
+                textAlign: 'left',
+                fontSize: '0.9rem'
+              }}
+            >
+              <AlertCircle size={18} aria-hidden="true" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Processing Loading Stepper */}
           {isLoading ? (
-            <div style={{ padding: '2rem 0' }}>
+            <div role="status" aria-live="polite" style={{ padding: '2rem 0' }}>
               <div style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -96,11 +112,11 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({
                 color: 'var(--color-accent-blue)',
                 marginBottom: '1.5rem'
               }}>
-                <Loader2 size={32} className="spin-animation" style={{ animation: 'spin 1s linear infinite' }} />
+                <Loader2 size={32} className="spin-animation" style={{ animation: 'spin 1s linear infinite' }} aria-hidden="true" />
               </div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-brand-900)' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-brand-900)' }}>
                 Analyzing Your Document...
-              </h3>
+              </h2>
               <p style={{ color: 'var(--color-accent-blue)', fontWeight: 600, fontSize: '0.95rem' }}>
                 {loadingStep}
               </p>
@@ -114,11 +130,15 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({
           ) : (
             /* Upload Dragzone */
             <div
+              role="button"
+              tabIndex={0}
+              aria-label="Upload document file dropzone. Press Enter or Space to open file picker."
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
+              onKeyDown={handleKeyDown}
               style={{
                 border: `2px dashed ${dragActive ? 'var(--color-accent-blue)' : 'var(--color-border-medium)'}`,
                 borderRadius: 'var(--radius-lg)',
@@ -128,12 +148,16 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({
                 transition: 'all var(--transition-fast)'
               }}
             >
+              <label htmlFor="file-upload-input" className="sr-only">
+                Choose legal document file (PDF, DOCX, TXT)
+              </label>
               <input
+                id="file-upload-input"
                 ref={fileInputRef}
                 type="file"
                 accept=".pdf,.docx,.doc,.txt"
                 onChange={handleChange}
-                style={{ display: 'none' }}
+                className="sr-only"
               />
               <div style={{
                 width: '56px',
@@ -147,20 +171,20 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({
                 margin: '0 auto 1.25rem auto',
                 boxShadow: 'var(--shadow-sm)'
               }}>
-                <UploadCloud size={28} color="var(--color-accent-blue)" />
+                <UploadCloud size={28} color="var(--color-accent-blue)" aria-hidden="true" />
               </div>
 
-              <h4 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-brand-900)', marginBottom: '0.35rem' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-brand-900)', marginBottom: '0.35rem' }}>
                 Drop your legal document here
-              </h4>
+              </h3>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-brand-500)', marginBottom: '1.25rem' }}>
                 or <span style={{ color: 'var(--color-accent-blue)', fontWeight: 600 }}>browse file from your computer</span>
               </p>
 
               <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
-                <span className="badge badge-low"><FileText size={12} /> PDF</span>
-                <span className="badge badge-low"><FileText size={12} /> DOCX</span>
-                <span className="badge badge-low"><FileText size={12} /> TXT</span>
+                <span className="badge badge-low"><FileText size={12} aria-hidden="true" /> PDF</span>
+                <span className="badge badge-low"><FileText size={12} aria-hidden="true" /> DOCX</span>
+                <span className="badge badge-low"><FileText size={12} aria-hidden="true" /> TXT</span>
               </div>
             </div>
           )}
@@ -177,7 +201,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({
             justifyContent: 'center',
             gap: '0.5rem'
           }}>
-            <CheckCircle2 size={15} color="var(--color-success)" />
+            <CheckCircle2 size={15} color="var(--color-success)" aria-hidden="true" />
             <span>Files are processed in memory with strict privacy protection. No persistent disk storage.</span>
           </div>
         </div>

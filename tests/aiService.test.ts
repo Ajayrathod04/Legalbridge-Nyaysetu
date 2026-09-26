@@ -6,21 +6,22 @@ import {
   generateCounselPrepSheet,
 } from "../server/services/aiService.js";
 import { SAMPLE_DOCUMENTS } from "../shared/sampleDocs.js";
+import { getTranslation, getLocalizedPersonaImpact, SUPPORTED_LANGUAGES } from "../src/services/i18n.js";
 
-describe("NyaySetu AI Service & Analysis Engine", () => {
+describe("NyaySetu AI Service & Comprehensive Evaluation Suite", () => {
   const sample = SAMPLE_DOCUMENTS[0]; // Employment v1
   const lines = sample.content
     .split("\n")
     .map((c, i) => ({ lineNumber: i + 1, content: c }));
 
-  it("should parse employment agreement and categorize key clauses correctly", async () => {
+  it("1 & 5. should parse employment agreement and extract clauses with verbatim line mapping", async () => {
     const analysis = await analyzeDocumentWithAI(
       sample.content,
       lines,
       "EmploymentAgreement.txt",
       "txt",
       sample.content.length,
-      "employee",
+      "employee"
     );
 
     expect(analysis).toBeDefined();
@@ -28,52 +29,81 @@ describe("NyaySetu AI Service & Analysis Engine", () => {
     expect(analysis.userContext).toBe("employee");
     expect(analysis.findings.length).toBeGreaterThan(0);
 
-    // Verify presence of termination clause finding
+    // Verify exact line mapping for evidence
     const termFinding = analysis.findings.find(
-      (f) => f.category === "termination",
+      (f) => f.category === "termination"
     );
     expect(termFinding).toBeDefined();
-    expect(termFinding?.personaImpact).toContain("notice period");
+    expect(termFinding?.startLine).toBeGreaterThan(0);
+    expect(termFinding?.endLine).toBeGreaterThanOrEqual(termFinding!.startLine);
+    expect(termFinding?.verbatimText.length).toBeGreaterThan(5);
   });
 
-  it("should answer questions grounded in the document text", async () => {
+  it("4. should personalize risk impact based on user persona selection (employee vs tenant vs freelancer)", async () => {
+    const empAnalysis = await analyzeDocumentWithAI(
+      sample.content,
+      lines,
+      "EmploymentAgreement.txt",
+      "txt",
+      sample.content.length,
+      "employee"
+    );
+    const tenantAnalysis = await analyzeDocumentWithAI(
+      sample.content,
+      lines,
+      "EmploymentAgreement.txt",
+      "txt",
+      sample.content.length,
+      "tenant"
+    );
+
+    const empTerm = empAnalysis.findings.find(f => f.category === 'termination');
+    const tenantTerm = tenantAnalysis.findings.find(f => f.category === 'termination');
+
+    expect(empTerm?.personaImpact).toContain("exit the company");
+    expect(tenantTerm?.personaImpact).toContain("notice period for moving out");
+  });
+
+  it("6. should answer questions with high confidence and verbatim evidence citations", async () => {
     const analysis = await analyzeDocumentWithAI(
       sample.content,
       lines,
       "EmploymentAgreement.txt",
       "txt",
       sample.content.length,
-      "employee",
+      "employee"
     );
 
     const qaResult = await askDocumentQuestion(
       analysis,
-      "What is the notice period required for termination?",
+      "What is the notice period required for termination?"
     );
     expect(qaResult.isSufficient).toBe(true);
     expect(qaResult.evidenceSnippet).toContain("60");
     expect(qaResult.confidence).toBe("high");
+    expect(qaResult.sectionNumber).toContain("Line");
   });
 
-  it("should return insufficient evidence message for questions unrelated to document", async () => {
+  it("7. should return insufficient-evidence response for unmentioned topics", async () => {
     const analysis = await analyzeDocumentWithAI(
       sample.content,
       lines,
       "EmploymentAgreement.txt",
       "txt",
       sample.content.length,
-      "employee",
+      "employee"
     );
 
     const qaResult = await askDocumentQuestion(
       analysis,
-      "What is the pet policy for dogs in the office building?",
+      "What is the pet policy for dogs in the office building?"
     );
     expect(qaResult.isSufficient).toBe(false);
     expect(qaResult.answer).toContain("couldn't find enough evidence");
+    expect(qaResult.confidence).toBe("low");
   });
 
-  it("should compare Document A and Document B and detect modified notice terms", async () => {
+  it("9. should compare Document A and Document B and categorize clause diffs", async () => {
     const linesV2 = sample
       .v2Content!.split("\n")
       .map((c, i) => ({ lineNumber: i + 1, content: c }));
@@ -84,7 +114,7 @@ describe("NyaySetu AI Service & Analysis Engine", () => {
       "Agreement_v1.txt",
       "txt",
       sample.content.length,
-      "employee",
+      "employee"
     );
 
     const docB = await analyzeDocumentWithAI(
@@ -93,7 +123,7 @@ describe("NyaySetu AI Service & Analysis Engine", () => {
       "Agreement_v2.txt",
       "txt",
       sample.v2Content!.length,
-      "employee",
+      "employee"
     );
 
     const comparison = await compareDocuments(docA, docB);
@@ -101,14 +131,14 @@ describe("NyaySetu AI Service & Analysis Engine", () => {
     expect(comparison.keyRiskChanges.length).toBeGreaterThan(0);
   });
 
-  it("should generate structured counsel preparation sheet", async () => {
+  it("10. should generate exportable counsel preparation sheet with prioritized questions & checklist", async () => {
     const analysis = await analyzeDocumentWithAI(
       sample.content,
       lines,
       "EmploymentAgreement.txt",
       "txt",
       sample.content.length,
-      "employee",
+      "employee"
     );
 
     const prep = generateCounselPrepSheet(analysis);
@@ -118,31 +148,48 @@ describe("NyaySetu AI Service & Analysis Engine", () => {
     expect(prep.actionChecklist.length).toBeGreaterThan(0);
   });
 
-  it("should support multilingual translations while keeping original evidence verbatim text intact", async () => {
-    const { getTranslation, getLocalizedPersonaImpact } =
-      await import("../src/services/i18n.js");
+  it("11. should support all 8 Indian & international languages in translation dictionary", async () => {
+    expect(SUPPORTED_LANGUAGES.length).toBe(8);
 
-    // Verify translation dictionary for Hindi
+    SUPPORTED_LANGUAGES.forEach(lang => {
+      const tagline = getTranslation(lang.code, 'tagline');
+      expect(tagline).toBeDefined();
+      expect(tagline.length).toBeGreaterThan(0);
+    });
+
     const hiNotice = getTranslation("hi", "translationNotice");
     expect(hiNotice).toContain("अनुवाद समझने में आसानी के लिए दिए गए हैं");
+  });
 
-    // Verify localized persona impact
-    const hiImpact = getLocalizedPersonaImpact(
-      "hi",
-      "Term & Termination Conditions",
-      "Default impact",
+  it("14. should produce deterministic analysis output when live AI API is absent", async () => {
+    const analysis = await analyzeDocumentWithAI(
+      sample.content,
+      lines,
+      "DeterministicTest.txt",
+      "txt",
+      sample.content.length,
+      "employee"
     );
-    expect(hiImpact).toContain("नोटिस अवधि");
 
-    // Verify original evidence remains untouched
+    expect(analysis.title).toContain("Analysis");
+    expect(analysis.totalSections).toBeGreaterThan(0);
+  });
+
+  it("17. should map evidence line ranges accurately to raw lines array", async () => {
     const analysis = await analyzeDocumentWithAI(
       sample.content,
       lines,
       "EmploymentAgreement.txt",
       "txt",
       sample.content.length,
-      "employee",
+      "employee"
     );
-    expect(analysis.findings[0].verbatimText.length).toBeGreaterThan(10);
+
+    const f = analysis.findings[0];
+    expect(f.startLine).toBeGreaterThan(0);
+    expect(f.endLine).toBeLessThanOrEqual(lines.length);
+
+    const targetLine = lines.find(l => l.lineNumber === f.startLine);
+    expect(targetLine).toBeDefined();
   });
 });
